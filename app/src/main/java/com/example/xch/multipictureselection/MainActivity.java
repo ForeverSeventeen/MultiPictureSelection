@@ -1,5 +1,6 @@
 package com.example.xch.multipictureselection;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -12,14 +13,20 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.permissions.RxPermissions;
+import com.luck.picture.lib.tools.PictureFileUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity {
     private int maxSelectNum = 8;//最多到几张还可以选择
@@ -32,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mRecyclerView=findViewById(R.id.recycler);
+        mRecyclerView = findViewById(R.id.recycler);
         initWidget();
     }
 
@@ -80,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showPop() {
         View bottomView = View.inflate(MainActivity.this, R.layout.layout_bottom_dialog, null);
-        TextView mAlbum =  bottomView.findViewById(R.id.tv_album);
+        TextView mAlbum = bottomView.findViewById(R.id.tv_album);
         TextView mCamera = bottomView.findViewById(R.id.tv_camera);
         TextView mCancel = bottomView.findViewById(R.id.tv_cancel);
 
@@ -168,4 +175,36 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    /**
+     * 清空图片缓存，包括裁剪、压缩后的图片，避免OOM
+     * 注意:必须要在上传完成后调用 必须要获取权限
+     */
+    private void clearCache() {
+        RxPermissions permissions = new RxPermissions(this);
+        permissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe(new Observer<Boolean>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onNext(Boolean aBoolean) {
+                if (aBoolean) {
+                    //清除缓存
+                    PictureFileUtils.deleteCacheDirFile(MainActivity.this);
+                } else {
+                    Toast.makeText(MainActivity.this, getString(R.string.picture_jurisdiction), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        });
+    }
+
 }
