@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                     selectList.addAll(images);
 
 //                    selectList = PictureSelector.obtainMultipleResult(data);
-                    // 例如 LocalMedia 里面返回三种path
+                    // LocalMedia 里面返回三种path
                     // 1.media.getPath(); 为原图path
                     // 2.media.getCutPath();为裁剪后path，需判断media.isCut();是否为true
                     // 3.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
